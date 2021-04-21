@@ -1,8 +1,10 @@
 # Description
 
-This repository is meant to serve as a general template for how to set up new repositories in the JogetOSS organization. 
+This repository contains a set of sample producer and consumer plugins for [Apache Kafka](https://kafka.apache.org/). For detailed instructions and an introduction to Apache Kafka, please refer to the blog article [Apache Kafka and Low-Code: An Introduction and a Practical Tutorial on Integrating IBM Event Streams and Watson IoT Platform with Joget](https://blog.joget.org/2020/01/apache-kafka-and-low-code-iot.html).
 
 # Getting Help
+
+Documentation is available at https://dev.joget.org/community/display/DX7/Apache+Kafka+Plugins.
 
 JogetOSS is a community-led team for open source software related to the [Joget](https://www.joget.org) no-code/low-code application platform.
 Projects under JogetOSS are community-driven and community-supported.

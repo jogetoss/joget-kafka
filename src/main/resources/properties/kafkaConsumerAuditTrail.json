@@ -1,0 +1,40 @@
+[{
+    title : '@@app.kafka.config@@',
+    properties : [{
+        name : 'bootstrapServers',
+        label : '@@app.kafka.bootstrapServers@@',
+        type : 'textarea',
+        description : '@@app.kafka.bootstrapServers.description@@',
+        required : 'True'
+    },
+    {
+        name : 'apiKey',
+        label : '@@app.kafka.apiKey@@',
+        type : 'textfield',
+        required : 'True'
+    },
+    {
+        name : 'topic',
+        label : '@@app.kafka.topic@@',
+        type : 'textfield',
+        required : 'True'
+    },
+    {
+        name : 'script',
+        label : '@@app.kafka.consumer.script@@',
+        description : '@@app.kafka.consumer.script.desc@@',
+        type : 'codeeditor',
+        required : 'True',
+        mode : 'java'
+    },
+    {
+        name : 'debugMode',
+        label : '@@app.kafka.debugMode@@',
+        description : '@@app.kafka.debugMode.desc@@',
+        type : 'checkbox',
+        options : [{
+            value : 'True',
+            label : ''
+        }]
+    }]
+}]

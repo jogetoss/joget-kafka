@@ -1,0 +1,34 @@
+[{
+    title : '@@app.kafka.config@@',
+    properties : [{
+        name : 'bootstrapServers',
+        label : '@@app.kafka.bootstrapServers@@',
+        type : 'textarea',
+        description : '@@app.kafkaProkafkaducerTool.bootstrapServers.description@@',
+        required : 'True'
+    },
+    {
+        name : 'apiKey',
+        label : '@@app.kafka.apiKey@@',
+        type : 'textfield',
+        required : 'True'
+    },
+    {
+        name : 'topic',
+        label : '@@app.kafka.topic@@',
+        type : 'textfield',
+        required : 'True'
+    },
+    {
+        name : 'key',
+        label : '@@app.kafka.producer.key@@',
+        type : 'textfield',
+        required : 'True'
+    },
+    {
+        name : 'message',
+        label : '@@app.kafka.producer.message@@',
+        type : 'textfield',
+        required : 'True'
+    }]
+}]
