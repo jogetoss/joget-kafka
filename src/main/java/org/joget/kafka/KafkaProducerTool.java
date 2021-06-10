@@ -5,34 +5,41 @@ import java.util.Properties;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.config.SaslConfigs;
-import org.apache.kafka.common.config.SslConfigs;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.PluginThread;
 import org.joget.plugin.base.DefaultApplicationPlugin;
+import org.joget.workflow.model.WorkflowAssignment;
+import org.joget.workflow.util.WorkflowUtil;
 
 public class KafkaProducerTool extends DefaultApplicationPlugin {
 
+    @Override
     public String getName() {
         return "Kafka Producer Tool";
     }
 
+    @Override
     public String getVersion() {
-        return "6.0.0";
+        return "6.0.1";
     }
 
+    @Override
     public String getDescription() {
         return "Tool to publish a message to a Kafka topic";
     }
 
+    @Override
     public String getLabel() {
         return "Kafka Producer Tool";
     }
 
+    @Override
     public String getClassName() {
         return getClass().getName();
     }
 
+    @Override
     public String getPropertyOptions() {
         AppDefinition appDef = AppUtil.getCurrentAppDefinition();
         String appId = appDef.getId();
@@ -43,14 +50,16 @@ public class KafkaProducerTool extends DefaultApplicationPlugin {
 
     @Override
     public Object execute(Map map) {
-        String bootstrapServers = getPropertyString("bootstrapServers"); // "broker-1-t335226q7ljf7f4n.kafka.svc02.us-south.eventstreams.cloud.ibm.com:9093";
-        String apiKey = getPropertyString("apiKey"); // "p9C0Fh8ZVt9Q8DQPluE6jYLYhmMmKLaKtXCjWkpSI6OZ";
-        String topic = getPropertyString("topic"); // "kafka-java-console-sample-topic";
-        String key = getPropertyString("key"); // "key";
-        String message = getPropertyString("message"); // "message";
+        WorkflowAssignment wfAssignment = (WorkflowAssignment)map.get("workflowAssignment");
+        String bootstrapServers = WorkflowUtil.processVariable(getPropertyString("bootstrapServers"), "", wfAssignment);
+        String clientId = WorkflowUtil.processVariable(getPropertyString("clientId"), "", wfAssignment);
+        String apiKey = WorkflowUtil.processVariable(getPropertyString("apiKey"), "", wfAssignment);
+        String topic = WorkflowUtil.processVariable(getPropertyString("topic"), "", wfAssignment);
+        String key = WorkflowUtil.processVariable(getPropertyString("key"), "", wfAssignment);
+        String message = WorkflowUtil.processVariable(getPropertyString("message"), "", wfAssignment);
 
         // get connection properties
-        Properties producerProperties = getClientConfig(bootstrapServers, apiKey);
+        Properties producerProperties = getClientConfig(bootstrapServers, clientId, apiKey);
 
         // set classloader for OSGI
         Thread currentThread = Thread.currentThread();
@@ -72,19 +81,17 @@ public class KafkaProducerTool extends DefaultApplicationPlugin {
     /**
      * Get connection properties to a Kafka cluster.
      * @param boostrapServers
+     * @param clientId
      * @param apikey
      * @return 
      */
-    public Properties getClientConfig(String boostrapServers, String apikey) {
+    public Properties getClientConfig(String boostrapServers, String clientId, String apikey) {
         Properties configs = new Properties();
         // common properties
         configs.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, boostrapServers);
         configs.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
         configs.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
-        configs.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"token\" password=\"" + apikey + "\";");
-        configs.put(SslConfigs.SSL_PROTOCOL_CONFIG, "TLSv1.2");
-        configs.put(SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, "TLSv1.2");
-        configs.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "HTTPS");
+        configs.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + clientId + "\" password=\"" + apikey + "\";");
 
         // producer properties
         configs.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");

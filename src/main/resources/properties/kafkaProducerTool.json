@@ -8,6 +8,13 @@
         required : 'True'
     },
     {
+        name : 'clientId',
+        label : '@@app.kafka.clientId@@',
+        type : 'textfield',
+        value : 'token',
+        required : 'True'
+    },
+    {
         name : 'apiKey',
         label : '@@app.kafka.apiKey@@',
         type : 'textfield',

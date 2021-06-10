@@ -8,7 +8,6 @@ import java.util.Properties;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.config.SaslConfigs;
-import org.apache.kafka.common.config.SslConfigs;
 import org.joget.apps.app.dao.PluginDefaultPropertiesDao;
 import org.joget.apps.app.model.AppDefinition;
 import org.joget.apps.app.model.PluginDefaultProperties;
@@ -17,6 +16,7 @@ import org.joget.apps.app.service.AppService;
 import org.joget.apps.app.service.AppUtil;
 import org.joget.commons.util.LogUtil;
 import org.joget.commons.util.PluginThread;
+import org.joget.workflow.util.WorkflowUtil;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
@@ -152,14 +152,15 @@ public class ConsumerThreadMonitor implements Runnable {
         
         // get plugin configuration
         Map propertiesMap = AppPluginUtil.getDefaultProperties(new KafkaConsumerAuditTrail(), json, appDef, null);        
-        String bootstrapServers = (String)propertiesMap.get("bootstrapServers");
-        String apiKey = (String)propertiesMap.get("apiKey");
-        String topic = (String)propertiesMap.get("topic");
-        String script = (String)propertiesMap.get("script");
+        String bootstrapServers = WorkflowUtil.processVariable((String)propertiesMap.get("bootstrapServers"), "", null);
+        String clientId = WorkflowUtil.processVariable((String)propertiesMap.get("clientId"), "", null);
+        String apiKey = WorkflowUtil.processVariable((String)propertiesMap.get("apiKey"), "", null);
+        String topic = WorkflowUtil.processVariable((String)propertiesMap.get("topic"), "", null);
+        String script = WorkflowUtil.processVariable((String)propertiesMap.get("script"), "", null);
         boolean debug =  "true".equalsIgnoreCase((String)propertiesMap.get("debugMode"));
 
         // get connection properties
-        Properties consumerProperties = getClientConfig(bootstrapServers, apiKey);
+        Properties consumerProperties = getClientConfig(bootstrapServers, clientId, apiKey);
 
         // set classloader for OSGI
         Thread currentThread = Thread.currentThread();
@@ -168,7 +169,7 @@ public class ConsumerThreadMonitor implements Runnable {
             currentThread.setContextClassLoader(this.getClass().getClassLoader());
 
             // start thread
-            runnable = new ConsumerRunnable(consumerProperties, bootstrapServers, apiKey, topic, script, debug);
+            runnable = new ConsumerRunnable(consumerProperties, topic, script, debug);
             PluginThread thread = new PluginThread(runnable);
             thread.start();
         } finally {
@@ -198,19 +199,17 @@ public class ConsumerThreadMonitor implements Runnable {
     /**
      * Get connection properties to a Kafka cluster.
      * @param boostrapServers
+     * @param clientId
      * @param apikey
      * @return 
      */
-    public Properties getClientConfig(String boostrapServers, String apikey) {
+    public Properties getClientConfig(String boostrapServers, String clientId, String apikey) {
         Properties configs = new Properties();
         // common properties
         configs.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, boostrapServers);
         configs.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
         configs.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
-        configs.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"token\" password=\"" + apikey + "\";");
-        configs.put(SslConfigs.SSL_PROTOCOL_CONFIG, "TLSv1.2");
-        configs.put(SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, "TLSv1.2");
-        configs.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "HTTPS");
+        configs.put(SaslConfigs.SASL_JAAS_CONFIG, "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"" + clientId + "\" password=\"" + apikey + "\";");
 
         // consumer properties
         configs.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringDeserializer");

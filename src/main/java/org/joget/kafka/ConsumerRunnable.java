@@ -26,7 +26,7 @@ public class ConsumerRunnable implements Runnable {
     private String script;
     private boolean debug;
 
-    public ConsumerRunnable(Properties clientConfiguration, String broker, String apikey, String topic, String script, boolean debugMode) {
+    public ConsumerRunnable(Properties clientConfiguration, String topic, String script, boolean debugMode) {
         this.script = script;
         this.debug = debugMode;
         this.kafkaConsumer = new KafkaConsumer<>(clientConfiguration);

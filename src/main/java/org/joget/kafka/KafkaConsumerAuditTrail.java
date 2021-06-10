@@ -14,7 +14,7 @@ public class KafkaConsumerAuditTrail extends DefaultAuditTrailPlugin {
 
     @Override
     public String getVersion() {
-        return "6.0.0";
+        return "6.0.1";
     }
 
     @Override
